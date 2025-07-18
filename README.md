@@ -10,7 +10,7 @@ This is a simple Python application that demonstrates OAuth 2.0 authentication w
 
 ### 2. Required Python Packages
 ```bash
-pip install requests
+pip install requests python-dotenv
 ```
 
 ### 3. ngrok Installation
@@ -36,11 +36,15 @@ cd CSTradeAppSimpleDemo
 ```
 
 ### 2. Configure Your Credentials
-Edit `main.py` and replace the placeholder credentials:
-```python
-appKey = "your_app_key_here"
-appSecret = "your_app_secret_here"
+Create a `.env` file in the project directory with your Schwab API credentials:
+```bash
+# Create .env file
+echo "SCHWAB_APP_KEY=your_app_key_here" > .env
+echo "SCHWAB_APP_SECRET=your_app_secret_here" >> .env
+echo "SCHWAB_REDIRECT_URI=https://your-ngrok-url.ngrok-free.app/" >> .env
 ```
+
+**Important**: Replace `your_app_key_here`, `your_app_secret_here`, and `your-ngrok-url` with your actual values.
 
 ### 3. Start ngrok Tunnel
 Open a new terminal window and run:
@@ -54,17 +58,13 @@ Forwarding    https://abc123.ngrok-free.app -> http://localhost:8000
 ```
 
 ### 4. Update Redirect URI
-Copy the ngrok URL and update it in `main.py`:
-```python
-# Replace the redirect_uri in both places:
-auhthUrl = f'https://api.schwabapi.com/v1/oauth/authorize?client_id={appKey}&redirect_uri=https://YOUR_NGROK_URL.ngrok-free.app&state=12345'
-
-data = {
-    'grant_type': 'authorization_code', 
-    'code': code, 
-    'redirect_uri': 'https://YOUR_NGROK_URL.ngrok-free.app'
-}
+Copy the ngrok URL and update your `.env` file:
+```bash
+# Update the redirect URI in .env file
+sed -i '' 's|https://your-ngrok-url.ngrok-free.app/|https://YOUR_ACTUAL_NGROK_URL.ngrok-free.app/|g' .env
 ```
+
+**Also update your Charles Schwab Developer Portal** with the same redirect URI.
 
 ## Running the Application
 
@@ -108,7 +108,7 @@ Account API response: {...}
 
 2. **"ngrok tunnel offline"**
    - Restart ngrok: `ngrok http 8000`
-   - Update the redirect URI in the script with the new ngrok URL
+   - Update the redirect URI in your `.env` file with the new ngrok URL
 
 3. **"404 Not Found" on API calls**
    - Check if the API endpoint is correct
@@ -116,8 +116,24 @@ Account API response: {...}
    - Consult Schwab API documentation
 
 4. **"Invalid redirect URI"**
-   - Ensure the redirect URI in your script matches exactly what's registered with Schwab
+   - Ensure the redirect URI in your `.env` file matches exactly what's registered with Schwab
    - Check for typos in the ngrok URL
+
+5. **"Script shows old ngrok URL even after updating .env"**
+   - **Environment Variable Caching Issue**: This is a common problem where shell environment variables override the `.env` file
+   - **Solution**: Clear any cached environment variables:
+     ```bash
+     # Check if environment variable is set
+     echo $SCHWAB_REDIRECT_URI
+     
+     # If it shows an old URL, unset it
+     unset SCHWAB_REDIRECT_URI
+     
+     # Verify .env file is being read correctly
+     python3 -c "from dotenv import load_dotenv; import os; load_dotenv(); print('Redirect URI:', os.getenv('SCHWAB_REDIRECT_URI'))"
+     ```
+   - **Why this happens**: Shell environment variables have higher precedence than `.env` files
+   - **Prevention**: Always use `.env` files instead of setting environment variables in your shell
 
 ### Python Version Issues
 
@@ -143,9 +159,13 @@ pyenv local 3.12.2
 ```
 CSTradeAppSimpleDemo/
 ├── main.py              # Main OAuth application
+├── .env                 # Environment variables (create this file)
 ├── README.md           # This file
 ├── oauth_server.py     # Optional OAuth server (if needed)
-└── simple_oauth_server.py  # Simple server implementation
+├── simple_oauth_server.py  # Simple server implementation
+├── quick_start.py      # Automated setup script
+├── start_oauth.py      # Enhanced OAuth starter
+└── start_oauth_cloudflared.py  # Cloudflare tunnel version
 ```
 
 ## Next Steps
