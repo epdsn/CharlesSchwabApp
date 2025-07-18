@@ -1,0 +1,149 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Trading Bot Flow" id="tradingBotFlow">
+    <mxGraphModel dx="1420" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        
+        <!-- Start Bot -->
+        <mxCell id="start" value="Start Bot" style="shape=terminator;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="60" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Load Config -->
+        <mxCell id="loadConfig" value="Load config.json" style="shape=process;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="240" y="60" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="startToConfig" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="start" target="loadConfig"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Set Parameters -->
+        <mxCell id="setParams" value="Set SYMBOL, STRATEGY, MODE" style="shape=process;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="440" y="60" width="200" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="configToParams" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="loadConfig" target="setParams"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Wait Market -->
+        <mxCell id="waitMarket" value="Wait for Market Open" style="shape=process;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="700" y="60" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="paramsToWait" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="setParams" target="waitMarket"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Check Time -->
+        <mxCell id="checkTime" value="Check Current Time (AZ)" style="shape=process;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="300" y="160" width="200" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="waitToCheckTime" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="waitMarket" target="checkTime"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Within Time? -->
+        <mxCell id="withinTime" value="Within Trade Window?" style="shape=rhombus;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="300" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="checkTimeToWithin" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="checkTime" target="withinTime"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Loop back if No -->
+        <mxCell id="loopTime" value="No" style="edgeLabel;resizable=0;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="280" y="200" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="withinNoEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;dashed=1;" edge="1" parent="1" source="withinTime" target="checkTime"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="240"/></Array></mxGeometry></mxCell>
+
+        <!-- Get Market Data -->
+        <mxCell id="getMarketData" value="Get Market Data (Price + Candles)" style="shape=process;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="600" y="260" width="220" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="withinYesEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="withinTime" target="getMarketData"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Evaluate RSI -->
+        <mxCell id="evalRSI" value="Evaluate Double RSI" style="shape=process;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="600" y="340" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="marketDataToRSI" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="getMarketData" target="evalRSI"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- RSI Cross? -->
+        <mxCell id="rsiCross" value="RSI Cross Detected?" style="shape=rhombus;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="600" y="420" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="rsiEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="evalRSI" target="rsiCross"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- RSI No loops back -->
+        <mxCell id="rsiNoEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;dashed=1;" edge="1" parent="1" source="rsiCross" target="checkTime"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="600" y="440"/><mxPoint x="400" y="440"/><mxPoint x="400" y="180"/></Array></mxGeometry></mxCell>
+
+        <!-- Fetch Option Chain -->
+        <mxCell id="fetchChain" value="Fetch Option Chain" style="shape=process;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="440" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="rsiYesEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="rsiCross" target="fetchChain"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Select Strike -->
+        <mxCell id="selectStrike" value="Select Strike ± Range" style="shape=process;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="900" y="500" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="chainToStrike" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="fetchChain" target="selectStrike"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Place Buy -->
+        <mxCell id="placeBuy" value="Place Buy Order (CALL/PUT)" style="shape=process;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="560" width="200" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="strikeToBuy" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="selectStrike" target="placeBuy"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Log Buy -->
+        <mxCell id="logBuy" value="Log BUY to trade_log.csv" style="shape=process;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="620" width="200" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="buyToLog" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="placeBuy" target="logBuy"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Monitor Position -->
+        <mxCell id="monitor" value="Monitor Position (Price & Trailing Stop)" style="shape=process;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="900" y="700" width="250" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="logToMonitor" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="logBuy" target="monitor"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Exit Condition -->
+        <mxCell id="exitCond" value="Exit Condition Met? (Trailing Stop or Target)" style="shape=rhombus;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="900" y="780" width="280" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="monitorToExit" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="monitor" target="exitCond"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Exit No loops back -->
+        <mxCell id="exitNoEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;dashed=1;" edge="1" parent="1" source="exitCond" target="monitor"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Place Sell -->
+        <mxCell id="sellOrder" value="Place Sell Order" style="shape=process;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="880" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="exitYesEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="exitCond" target="sellOrder"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Log Sell -->
+        <mxCell id="logSell" value="Log SELL to trade_log.csv" style="shape=process;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="940" width="200" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="sellToLog" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="sellOrder" target="logSell"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- One Trade Per Window -->
+        <mxCell id="oneTrade" value="One Trade Per Window?" style="shape=rhombus;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="900" y="1020" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="logSellToOneTrade" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="logSell" target="oneTrade"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Stop Trades -->
+        <mxCell id="stopTrades" value="Stop Further Trades" style="shape=process;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="1040" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="oneTradeYesEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="oneTrade" target="stopTrades"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Market Close -->
+        <mxCell id="marketClose" value="Wait Until Market Close" style="shape=process;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="1120" width="200" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="stopTradesToClose" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="stopTrades" target="marketClose"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="oneTradeNoEdge" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="oneTrade" target="checkTime"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- End Bot -->
+        <mxCell id="endBot" value="End Bot" style="shape=terminator;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="1200" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="closeToEnd" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;" edge="1" parent="1" source="marketClose" target="endBot"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
